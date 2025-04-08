@@ -1,0 +1,5 @@
+| email                | name      | company     | role          | customField |
+|----------------------|-----------|-------------|--------------|------------|
+| john@example.com     | John Doe  | Acme Inc   | Developer    | Value 1    |
+| sarah@example.com    | Sarah Lee | TechCorp   | Designer     | Value 2    |
+| mike@example.com     | Mike Chen | StartupXYZ | Manager      | Value 3    |
