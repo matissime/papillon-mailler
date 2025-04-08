@@ -46,7 +46,7 @@ Papillon Mailler is an elegant and simple email automation tool that combines be
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/papillon-mailler.git
+git clone https://github.com/matissime/papillon-mailler.git
 
 # Navigate to project directory
 cd papillon-mailler
