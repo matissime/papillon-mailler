@@ -156,5 +156,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 ---
 
 <div align="center">
-  <p>Made with ❤️ by Your Team</p>
+  <p>Made with ❤️ by Matisse</p>
 </div>
