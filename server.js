@@ -29,29 +29,35 @@ app.post('/send-email', async (req, res) => {
         pass: smtpConfig.password,
       },
     });
+    
+    // Append signature to email body if enabled
+    let htmlBody = email.body;
+    if (smtpConfig.useSignature && smtpConfig.signature) {
+      htmlBody += `<div class="signature-divider" style="margin-top: 20px; margin-bottom: 20px; border-top: 1px solid #eaeaea;"></div>`;
+      htmlBody += smtpConfig.signature;
+    }
 
     console.log('Sending email:', {
       from: `"${smtpConfig.senderName}" <${smtpConfig.senderEmail}>`,
       replyTo: smtpConfig.replyToEmail,
       to: email.to,
       subject: email.subject,
-      html: email.body,
+      html: htmlBody,
     });
 
     const info = await transporter.sendMail({
       from: `"${smtpConfig.senderName}" <${smtpConfig.senderEmail}>`,
       to: email.to,
       subject: email.subject,
-      html: email.body,
       replyTo: smtpConfig.replyToEmail,
       alternatives: [
         {
           contentType: 'text/plain',
-          content: email.body.replace(/<br\s*\/?>/g, '\n').replace(/<[^>]+>/g, '')
+          content: htmlBody.replace(/<br\s*\/?>/g, '\n').replace(/<[^>]+>/g, '')
         },
         {
           contentType: 'text/html',
-          content: email.body
+          content: htmlBody
         }
       ]
     });

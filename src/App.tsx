@@ -45,6 +45,7 @@ function App() {
   const [emailTemplate, setEmailTemplate] = useState<EmailTemplateType | null>(() => loadState('emailTemplate'));
   const [sending, setSending] = useState(false);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
   // Save state changes
   useEffect(() => {
@@ -62,6 +63,13 @@ function App() {
   useEffect(() => {
     if (emailTemplate) saveState('emailTemplate', emailTemplate);
   }, [emailTemplate]);
+
+  useEffect(() => {
+    // Set first contact as default for preview when contacts are loaded
+    if (importedData?.contacts?.length && !selectedContact) {
+      setSelectedContact(importedData.contacts[0]);
+    }
+  }, [importedData, selectedContact]);
 
   const handleFileSelect = async (file: File) => {
     try {
@@ -165,6 +173,22 @@ function App() {
     3: !!emailTemplate,
     4: true,
   }[currentStep];
+
+  // Function to generate preview content based on selected contact
+  const getEmailPreview = () => {
+    if (!emailTemplate || !selectedContact) return { subject: '', body: '' };
+    
+    const parsedSubject = parseTemplate(emailTemplate.subject, selectedContact);
+    let parsedBody = parseTemplate(emailTemplate.body, selectedContact);
+    
+    // Add signature if enabled
+    if (smtpConfig?.useSignature && smtpConfig?.signature) {
+      parsedBody += `<div class="signature-divider" style="margin-top: 20px; margin-bottom: 20px; border-top: 1px solid #eaeaea;"></div>`;
+      parsedBody += smtpConfig.signature;
+    }
+    
+    return { subject: parsedSubject, body: parsedBody };
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-primary/10 p-8">
@@ -280,16 +304,56 @@ function App() {
                     Server: {smtpConfig?.host}:{smtpConfig?.port}
                   </p>
                 </div>
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <h3 className="font-medium text-gray-700 mb-2">Email Template</h3>
-                  <p className="text-sm text-gray-600">
-                    Subject: {emailTemplate?.subject}
-                  </p>
-                  <div 
-                    className="mt-2 text-sm text-gray-600"
-                    dangerouslySetInnerHTML={{ __html: emailTemplate?.body || '' }}
-                  />
+                
+                <div className="p-4 bg-gray-50 rounded-lg space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-gray-700">Email Preview</h3>
+                    
+                    {importedData && importedData.contacts.length > 0 && (
+                      <div className="flex items-center gap-2">
+                        <label htmlFor="contact-select" className="text-sm text-gray-600">
+                          Preview for:
+                        </label>
+                        <select
+                          id="contact-select"
+                          className="text-sm rounded-md border-gray-300 shadow-sm focus:border-primary focus:ring focus:ring-primary/20"
+                          onChange={(e) => {
+                            const contactIndex = parseInt(e.target.value);
+                            setSelectedContact(importedData.contacts[contactIndex]);
+                          }}
+                          value={importedData.contacts.indexOf(selectedContact || importedData.contacts[0])}
+                        >
+                          {importedData.contacts.map((contact, index) => (
+                            <option key={index} value={index}>
+                              {contact.email}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {selectedContact && (
+                    <div className="email-preview border border-gray-200 rounded-lg overflow-hidden">
+                      <div className="email-header bg-gray-100 p-3 border-b border-gray-200">
+                        <div className="text-sm">
+                          <span className="font-medium">To:</span> {selectedContact.email}
+                        </div>
+                        <div className="text-sm mt-1">
+                          <span className="font-medium">Subject:</span> {getEmailPreview().subject}
+                        </div>
+                      </div>
+                      
+                      <div className="email-body bg-white p-4">
+                        <div 
+                          className="text-sm prose max-w-none"
+                          dangerouslySetInnerHTML={{ __html: getEmailPreview().body }}
+                        />
+                      </div>
+                    </div>
+                  )}
                 </div>
+                
                 {sending && (
                   <div className="text-sm text-gray-600">
                     Sending... {progress.current}/{progress.total}

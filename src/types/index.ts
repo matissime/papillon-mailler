@@ -12,6 +12,8 @@ export interface SmtpConfig {
   senderName: string;
   senderEmail: string;
   replyToEmail: string;
+  useSignature: boolean;
+  signature: string;
 }
 
 export interface EmailTemplate {

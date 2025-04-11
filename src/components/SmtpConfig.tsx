@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { SmtpConfig as SmtpConfigType } from '../types';
-import { KeyIcon, ServerIcon, UserIcon, EnvelopeIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
+import { KeyIcon, ServerIcon, UserIcon, EnvelopeIcon, ArrowPathIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
 
 interface SmtpConfigProps {
   onSave: (config: SmtpConfigType) => void;
@@ -16,6 +16,8 @@ const defaultConfig: SmtpConfigType = {
   senderName: '',
   senderEmail: '',
   replyToEmail: '',
+  useSignature: false,
+  signature: '',
 };
 
 export const SmtpConfig = ({ onSave, initialConfig }: SmtpConfigProps) => {
@@ -173,6 +175,49 @@ export const SmtpConfig = ({ onSave, initialConfig }: SmtpConfigProps) => {
               placeholder="contact@company.com"
             />
           </div>
+        </div>
+
+        {/* Email Signature */}
+        <div className="space-y-4 border-t border-gray-100 pt-4">
+          <h3 className="text-lg font-medium text-gray-700 flex items-center gap-2">
+            <DocumentTextIcon className="w-5 h-5 text-primary/70" />
+            Email Signature
+          </h3>
+          
+          <div className="flex items-center mb-4">
+            <input
+              type="checkbox"
+              id="useSignature"
+              checked={config.useSignature}
+              onChange={(e) =>
+                setConfig((prev) => ({ ...prev, useSignature: e.target.checked }))
+              }
+              className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
+            />
+            <label htmlFor="useSignature" className="ml-2 block text-sm text-gray-700">
+              Add signature to emails
+            </label>
+          </div>
+
+          {config.useSignature && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                HTML Signature
+              </label>
+              <textarea
+                value={config.signature}
+                onChange={(e) =>
+                  setConfig((prev) => ({ ...prev, signature: e.target.value }))
+                }
+                className="input-field min-h-[150px] font-mono text-sm rounded-xl"
+                placeholder="<div>Your signature HTML here</div>"
+                rows={5}
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                You can use HTML tags to style your signature
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="text-sm text-gray-600 mt-2 p-4 bg-gray-50 rounded-xl">
